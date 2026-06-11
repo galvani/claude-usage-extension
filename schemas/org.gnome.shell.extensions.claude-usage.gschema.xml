@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schemalist>
+  <!-- enum reused by the 'metric' key: what the progress bar measures -->
+  <enum id="org.gnome.shell.extensions.claude-usage.metric">
+    <value nick="tokens" value="0"/>
+    <value nick="cost"   value="1"/>
+    <value nick="time"   value="2"/>
+  </enum>
+
+  <schema id="org.gnome.shell.extensions.claude-usage"
+          path="/org/gnome/shell/extensions/claude-usage/">
+
+    <key name="refresh-interval" type="i">
+      <default>60</default>
+      <range min="5" max="3600"/>
+      <summary>Refresh interval (seconds)</summary>
+      <description>How often to re-run ccusage and update the panel.</description>
+    </key>
+
+    <key name="metric" enum="org.gnome.shell.extensions.claude-usage.metric">
+      <default>'tokens'</default>
+      <summary>Progress metric</summary>
+      <description>What the bar fills against: total tokens, cost (USD), or time elapsed in the 5-hour block.</description>
+    </key>
+
+    <!-- 0 = auto: derive the ceiling from your own historical peak block.
+         &gt;0 = treat this many tokens as 100%. -->
+    <key name="token-limit" type="x">
+      <default>0</default>
+      <range min="0" max="100000000000"/>
+      <summary>Token limit (0 = auto)</summary>
+      <description>Tokens that count as 100%. 0 derives the limit from the largest past 5-hour block.</description>
+    </key>
+
+    <!-- 0 = auto (peak past block cost); otherwise USD that counts as 100%. -->
+    <key name="cost-limit" type="d">
+      <default>0</default>
+      <range min="0" max="100000"/>
+      <summary>Cost limit USD (0 = auto)</summary>
+      <description>Cost in USD that counts as 100% when the metric is 'cost'. 0 derives it from the largest past block.</description>
+    </key>
+
+    <key name="warn-threshold" type="i">
+      <default>75</default>
+      <range min="1" max="100"/>
+      <summary>Warning threshold (%)</summary>
+      <description>At or above this percentage the bar turns to the warning colour.</description>
+    </key>
+
+    <key name="critical-threshold" type="i">
+      <default>90</default>
+      <range min="1" max="100"/>
+      <summary>Critical threshold (%)</summary>
+      <description>At or above this percentage the bar turns critical and the warning icon appears.</description>
+    </key>
+
+    <key name="show-percentage" type="b">
+      <default>true</default>
+      <summary>Show percentage label</summary>
+      <description>Display the numeric percentage next to the bar.</description>
+    </key>
+
+    <key name="bar-width" type="i">
+      <default>46</default>
+      <range min="16" max="200"/>
+      <summary>Bar width (px)</summary>
+      <description>Width of the progress bar track in logical pixels.</description>
+    </key>
+
+    <!-- argv to invoke ccusage, space-separated. Empty = built-in auto-detect
+         (handles nvm/volta installs whose PATH GNOME Shell does not inherit). -->
+    <key name="ccusage-command" type="s">
+      <default>''</default>
+      <summary>ccusage command</summary>
+      <description>Override the command used to run ccusage (space-separated argv). Empty auto-detects npx/ccusage.</description>
+    </key>
+  </schema>
+</schemalist>

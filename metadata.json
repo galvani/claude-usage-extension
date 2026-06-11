@@ -1,0 +1,9 @@
+{
+  "uuid": "claude-usage@galvani78",
+  "name": "Claude Usage Monitor",
+  "description": "Shows your Claude Code usage for the current 5-hour rolling window as a progress bar in the GNOME panel, with a colour-coded background and a warning icon when you approach the limit. Data comes from the local `ccusage` CLI (which reads ~/.claude session logs).",
+  "version": 1,
+  "shell-version": ["45", "46", "47", "48", "49", "50"],
+  "settings-schema": "org.gnome.shell.extensions.claude-usage",
+  "url": "https://github.com/galvani78/claude-usage-extension"
+}

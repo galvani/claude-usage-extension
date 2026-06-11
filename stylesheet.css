@@ -1,0 +1,69 @@
+/* Claude Usage Monitor panel styling.
+ * Colours are driven entirely by the level-* class toggled on the track, so
+ * the JS only flips one class and never hard-codes colours. */
+
+.claude-usage-box {
+    spacing: 4px;
+}
+
+.claude-usage-label {
+    font-feature-settings: "tnum"; /* tabular digits = no width jitter as % changes */
+    font-size: 0.9em;
+}
+
+.claude-usage-warn-icon {
+    icon-size: 14px;
+    color: #ffffff;
+}
+
+/* The track is the "background color indication" surface. */
+.claude-usage-track {
+    border-radius: 5px;
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    /* default/empty background; overridden per level below */
+    background-color: rgba(255, 255, 255, 0.10);
+}
+
+/* The fill width is set from JS; only its colour lives here. */
+.claude-usage-fill {
+    border-radius: 4px;
+    background-color: rgba(255, 255, 255, 0.85);
+}
+
+/* ---- levels: track tint + fill colour --------------------------------- */
+
+.level-idle {
+    background-color: rgba(255, 255, 255, 0.08);
+}
+.level-idle .claude-usage-fill {
+    background-color: rgba(255, 255, 255, 0.25);
+}
+
+.level-normal {
+    background-color: rgba(38, 162, 105, 0.20);  /* faint green */
+}
+.level-normal .claude-usage-fill {
+    background-color: #2ec27e;                   /* GNOME green */
+}
+
+.level-warning {
+    background-color: rgba(229, 165, 10, 0.25);  /* faint amber */
+}
+.level-warning .claude-usage-fill {
+    background-color: #f5c211;                   /* GNOME yellow */
+}
+
+.level-critical {
+    background-color: rgba(224, 27, 36, 0.30);   /* faint red */
+}
+.level-critical .claude-usage-fill {
+    background-color: #e01b24;                   /* GNOME red */
+}
+
+.level-error {
+    background-color: rgba(224, 27, 36, 0.30);
+    border-color: #e01b24;
+}
+.level-error .claude-usage-fill {
+    background-color: transparent;
+}
