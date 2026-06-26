@@ -65,4 +65,4 @@ Open **Settings** from the panel popup (or `gnome-extensions prefs claude-usage@
 
 ## License
 
-All rights reserved (personal project — change as desired).
+[MIT](LICENSE) — do what you want, just keep the notice.
