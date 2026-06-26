@@ -30,6 +30,14 @@
     background-color: rgba(255, 255, 255, 0.85);
 }
 
+/* Time-elapsed marker: a thin tick whose x-position (set from JS) shows how far
+ * through the 5-hour block we are. Fill past the marker = burning ahead of the
+ * clock. Kept colour-neutral so it reads against any level tint. */
+.claude-usage-marker {
+    background-color: rgba(255, 255, 255, 0.9);
+    border-radius: 1px;
+}
+
 /* ---- levels: track tint + fill colour --------------------------------- */
 
 .level-idle {

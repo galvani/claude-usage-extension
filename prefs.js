@@ -1,7 +1,6 @@
 /* Preferences UI (GTK4 / libadwaita) for Claude Usage Monitor. */
 
 import Gio from 'gi://Gio';
-import GLib from 'gi://GLib';
 import Gtk from 'gi://Gtk';
 import Adw from 'gi://Adw';
 
@@ -16,67 +15,35 @@ export default class ClaudeUsagePrefs extends ExtensionPreferences {
         // --- Display -------------------------------------------------------
         const display = new Adw.PreferencesGroup({title: _('Display')});
         page.add(display);
-
-        const metricRow = new Adw.ComboRow({
-            title: _('Progress metric'),
-            subtitle: _('What the bar fills against'),
-            model: new Gtk.StringList({strings: [_('Tokens'), _('Cost (USD)'), _('Time in block')]}),
-        });
-        const metricKeys = ['tokens', 'cost', 'time'];
-        metricRow.selected = Math.max(0, metricKeys.indexOf(settings.get_string('metric')));
-        metricRow.connect('notify::selected', r => settings.set_string('metric', metricKeys[r.selected]));
-        display.add(metricRow);
-
         display.add(this._spin(settings, 'bar-width', _('Bar width (px)'), null, 16, 200, 2));
         display.add(this._switch(settings, 'show-percentage', _('Show percentage label'), null));
 
-        // --- Thresholds ----------------------------------------------------
+        // --- Pace thresholds ----------------------------------------------
         const thresh = new Adw.PreferencesGroup({
-            title: _('Thresholds'),
-            description: _('Colour turns amber at the warning level and red (with a warning icon) at the critical level.'),
+            title: _('Pace thresholds'),
+            description: _('Colour by projected end-of-window usage (current 5-hour utilisation ÷ fraction of the window elapsed). 100% = on track to land exactly at the limit; 150% = on track for 1.5× the limit. Amber at the warning level, red at the critical level.'),
         });
         page.add(thresh);
-        thresh.add(this._spin(settings, 'warn-threshold', _('Warning (%)'), null, 1, 100, 1));
-        thresh.add(this._spin(settings, 'critical-threshold', _('Critical (%)'), null, 1, 100, 1));
-
-        // --- Limits --------------------------------------------------------
-        const limits = new Adw.PreferencesGroup({
-            title: _('Limits'),
-            description: _('0 = auto: use your largest past 5-hour block as 100%.'),
-        });
-        page.add(limits);
-        limits.add(this._spin(settings, 'token-limit', _('Token limit'), _('Tokens that count as 100%'),
-            0, 100000000000, 1000000, true));
-        limits.add(this._spin(settings, 'cost-limit', _('Cost limit (USD)'), _('Cost that counts as 100%'),
-            0, 100000, 5, false, true));
+        thresh.add(this._spin(settings, 'warn-threshold', _('Warning pace (%)'), null, 50, 500, 5));
+        thresh.add(this._spin(settings, 'critical-threshold', _('Critical pace (%)'), null, 50, 500, 5));
 
         // --- Data source ---------------------------------------------------
-        const src = new Adw.PreferencesGroup({title: _('Data source')});
+        const src = new Adw.PreferencesGroup({
+            title: _('Data source'),
+            description: _('Usage is read from Anthropic’s own endpoint (the same numbers as Claude Code’s /usage), using the OAuth token Claude Code stores locally. The endpoint is aggressively rate-limited, so keep the fetch interval high; the panel shows the last value between fetches.'),
+        });
         page.add(src);
-        src.add(this._spin(settings, 'refresh-interval', _('Refresh interval (s)'), null, 5, 3600, 5));
-
-        const cmdRow = new Adw.EntryRow({title: _('ccusage command (blank = auto)')});
-        cmdRow.text = settings.get_string('ccusage-command');
-        cmdRow.connect('notify::text', r => settings.set_string('ccusage-command', r.text));
-        src.add(cmdRow);
+        src.add(this._spin(settings, 'usage-poll-interval', _('Usage fetch interval (s)'), null, 60, 3600, 30));
+        src.add(this._spin(settings, 'refresh-interval', _('Panel update interval (s)'), null, 5, 3600, 5));
     }
 
-    // SpinRow helper. `big` uses the 64-bit setter; `dbl` uses the double setter.
-    _spin(settings, key, title, subtitle, lower, upper, step, big = false, dbl = false) {
-        const value = dbl ? settings.get_double(key)
-            : big ? Number(settings.get_value(key).unpack())
-            : settings.get_int(key);
+    _spin(settings, key, title, subtitle, lower, upper, step) {
         const row = new Adw.SpinRow({
             title, subtitle,
-            adjustment: new Gtk.Adjustment({lower, upper, step_increment: step, value}),
-            digits: dbl ? 2 : 0,
+            adjustment: new Gtk.Adjustment({lower, upper, step_increment: step, value: settings.get_int(key)}),
+            digits: 0,
         });
-        row.connect('notify::value', r => {
-            const v = r.get_value();
-            if (dbl) settings.set_double(key, v);
-            else if (big) settings.set_value(key, new GLib.Variant('x', v));
-            else settings.set_int(key, v);
-        });
+        row.connect('notify::value', r => settings.set_int(key, r.get_value()));
         return row;
     }
 

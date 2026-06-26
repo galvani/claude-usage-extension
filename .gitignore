@@ -4,8 +4,12 @@ schemas/gschemas.compiled
 # Packed extension zip
 *.shell-extension.zip
 
-# Editor / OS noise
+# Editor / OS / tooling noise
 .vscode/
 .idea/
+.serena/
 *.swp
 .DS_Store
+
+# Internal design journal — kept local, not published
+JOURNAL.md

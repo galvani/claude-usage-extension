@@ -1,24 +1,36 @@
 # Claude Usage Monitor
 
-A GNOME Shell extension that shows your **Claude Code usage for the current
-5-hour rolling window** as a small progress bar in the top panel.
+A GNOME Shell extension that shows your **real Claude subscription usage** — the
+same 5-hour rolling-window figure as Claude Code's `/usage` — as a small progress
+bar in the top panel.
 
-- **Progress bar** in the panel, filling toward your limit.
-- **Background colour indication** — green → amber → red as you climb.
-- **Warning icon (⚠)** appears once you cross the critical threshold.
-- Click for a popup with tokens, cost, burn rate, projection, and time-to-reset.
+- **Progress bar** in the panel showing your 5-hour `utilization`, with a thin
+  tick marking how far through the window you are.
+- **Pace colouring** — green → amber → red driven by *projected* end-of-window
+  usage, not raw usage. The bar goes amber when you're on track to hit the limit
+  by reset and red when you're on track to overshoot it. Fill past the time tick
+  means you're burning faster than the clock.
+- **Warning icon (⚠)** appears once your pace crosses the critical threshold.
+- Click for a popup with the 5-hour line + reset, the pace breakdown, and your
+  weekly / weekly-Sonnet limits.
 
-Usage data comes entirely from the local [`ccusage`](https://github.com/ryoppippi/ccusage)
-CLI, which parses your `~/.claude` session logs into rolling 5-hour blocks. No
-network calls are made by the extension.
+The number matches `/usage` because it comes from the same place: Anthropic's
+usage endpoint (`/api/oauth/usage`), read with the OAuth token Claude Code
+already stores in `~/.claude/.credentials.json`.
+
+> **Note on credentials & network.** This extension reads your local Claude OAuth
+> token and sends it (in-process, never on a command line) to `api.anthropic.com`
+> over HTTPS — the same host and token Claude Code itself uses — to fetch your
+> usage. The token is never persisted, copied, or logged, and no other network
+> calls are made. The `/api/oauth/usage` endpoint is **undocumented** and may
+> change without notice. If your token has expired, open Claude Code once to
+> refresh it.
 
 ## Requirements
 
-- GNOME Shell 45–50 (developed on 50.1, Wayland).
-- Node.js with `ccusage` reachable — either installed globally, or runnable via
-  `npx`. The extension auto-detects `npx`/`ccusage` even under nvm/volta/bun,
-  whose `PATH` GNOME Shell does not normally inherit. If yours lives somewhere
-  exotic, set an explicit command in **Settings → Data source**.
+- GNOME Shell 45–50 (developed on 50.1, Wayland) — bundles libsoup 3.
+- **Claude Code installed and signed in** (a Pro/Max subscription). The extension
+  uses the OAuth token it stores; it does no login of its own.
 
 ## Install (development)
 
@@ -37,17 +49,16 @@ Open **Settings** from the panel popup (or `gnome-extensions prefs claude-usage@
 
 | Setting | Default | Meaning |
 |---|---|---|
-| Progress metric | Tokens | Bar fills against tokens, cost (USD), or time elapsed in the block |
-| Token / Cost limit | 0 (auto) | `0` = use your largest past 5-hour block as 100% |
-| Warning threshold | 75% | Bar turns amber |
-| Critical threshold | 90% | Bar turns red and the ⚠ icon appears |
-| Refresh interval | 60 s | How often `ccusage` is re-run |
-| ccusage command | (auto) | Override the argv used to invoke ccusage |
+| Warning pace | 100% | Amber when projected to land *at* the limit by reset |
+| Critical pace | 150% | Red + ⚠ when projected to land at 1.5× the limit |
+| Usage fetch interval | 300 s | Min time between calls to the usage endpoint (it rate-limits hard — keep high) |
+| Panel update interval | 60 s | How often the bar re-renders from cache (no network) |
+| Bar width | 46 px | Width of the progress-bar track |
+| Show percentage label | on | Numeric % next to the bar |
 
 ## Documentation
 
 - [SPEC.md](SPEC.md) — what it is and why.
-- [JOURNAL.md](JOURNAL.md) — design decisions and rationale.
 - [AGENTS.md](AGENTS.md) — conventions for AI/code agents.
 
 ## License
