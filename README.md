@@ -65,4 +65,4 @@ Open **Settings** from the panel popup (or `gnome-extensions prefs claude-usage@
 
 ## License
 
-[MIT](LICENSE) — do what you want, just keep the notice.
+[The Unlicense](LICENSE) — public domain, do whatever you want.
