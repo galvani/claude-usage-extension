@@ -4,6 +4,8 @@ A GNOME Shell extension that shows your **real Claude subscription usage** — t
 same 5-hour rolling-window figure as Claude Code's `/usage` — as a small progress
 bar in the top panel.
 
+![The panel bar at 5% usage early in the window — green, with the tick marking time elapsed](docs/panel.png)
+
 - **Progress bar** in the panel showing your 5-hour `utilization`, with a thin
   tick marking how far through the window you are.
 - **Pace colouring** — green → amber → red driven by *projected* end-of-window
